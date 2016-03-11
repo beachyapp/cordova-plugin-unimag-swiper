@@ -52,8 +52,8 @@ UmReader readerType;
     }
 }
 
-/** 
-* Called when the application enters the background. 
+/**
+* Called when the application enters the background.
 * The reader is killed to maintain consistency with Android behavior.
 */
 - (void)onPause:(NSNotification*)notification {
@@ -80,8 +80,8 @@ UmReader readerType;
 /**
 * Initializes uniMag objext to start listening to SDK events
 * for connection, disconnection, swiping, etc.
-* 
-* @param {CDVInvokedUrlCommand*} 
+*
+* @param {CDVInvokedUrlCommand*}
 *        The command sent from JavaScript
 */
 - (void) activateReader:(CDVInvokedUrlCommand*)command {
@@ -119,7 +119,7 @@ UmReader readerType;
             } else result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                 messageAsString:[NSString stringWithFormat:
                     @"Failed to activate reader: %@", [self getUmRetErrorMessage:activated]]];
-        
+
         } else result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
             messageAsString:@"Reader is already activated."];
 
@@ -135,8 +135,8 @@ UmReader readerType;
 * events, swiper will no longer function until activateReader
 * is called again by the containing app, unless this is called
 * by onPause.
-* 
-* @param {CDVInvokedUrlCommand*} command 
+*
+* @param {CDVInvokedUrlCommand*} command
 *        The command sent from JavaScript
 */
 - (void) deactivateReader:(CDVInvokedUrlCommand*)command {
@@ -165,8 +165,8 @@ UmReader readerType;
 * Tells the SDK to begin expecting a swipe. From the moment this is
 * called, the user will have 30 seconds to swipe a card before a
 * timeout error occurs.
-* 
-* @param {CDVInvokedUrlCommand*} command 
+*
+* @param {CDVInvokedUrlCommand*} command
 *        The command sent from JavaScript
 */
 - (void)swipe:(CDVInvokedUrlCommand*)command {
@@ -198,8 +198,8 @@ UmReader readerType;
 
 /**
 * Turns SDK logs on or off.
-* 
-* @param {CDVInvokedUrlCommand*} command 
+*
+* @param {CDVInvokedUrlCommand*} command
 *        The command sent from JavaScript
 */
 - (void)enableLogs:(CDVInvokedUrlCommand*)command {
@@ -218,7 +218,7 @@ UmReader readerType;
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
             messageAsString:[NSString stringWithFormat:
                 @"Logging %@abled.", enableLogs ? @"en" : @"dis"]];
-    
+
     } else result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
         messageAsString:@"Boolean 'enable' not specified."];
 
@@ -228,8 +228,8 @@ UmReader readerType;
 /**
 * Sets reader type as specified if valid.
 * Not necessary, but could help when troubleshooting.
-* 
-* @param {CDVInvokedUrlCommand*} command 
+*
+* @param {CDVInvokedUrlCommand*} command
 *        The command sent from JavaScript
 */
 - (void)setReaderType:(CDVInvokedUrlCommand*)command {
@@ -243,7 +243,7 @@ UmReader readerType;
             @"UMREADER_UNIMAG_PRO",
             @"UMREADER_UNIMAG_II",
             @"UMREADER_SHUTTLE", nil];
-        
+
         // Get type
         NSUInteger n = [types indexOfObject:type];
 
@@ -257,7 +257,7 @@ UmReader readerType;
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
             messageAsString:[NSString stringWithFormat:
                 @"Reader type set as \"%@\".", type]];
-    
+
     } else result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
         messageAsString:@"Reader type not specified."];
 
@@ -287,7 +287,7 @@ UmReader readerType;
 
 /**
 * Receive notification from the SDK when the swiper becomes disconnected
-* from the device. 
+* from the device.
 */
 - (void)umDisconnected:(NSNotification *)notification {
     [self fireEvent:@"disconnected"];
@@ -304,7 +304,7 @@ UmReader readerType;
 * Receive notification from SDK when system volume is too low to connect.
 */
 - (void)umConnection_InsufficientPower:(NSNotification *)notification {
-    [self fireEvent:@"connection_error" 
+    [self fireEvent:@"connection_error"
         withData:@"Volume too low. Please maximize volume before reattaching swiper."];
 }
 
@@ -313,7 +313,7 @@ UmReader readerType;
 * blocking a connection.
 */
 - (void)umConnectionMonoAudio:(NSNotification *)notification {
-    [self fireEvent:@"connection_error" 
+    [self fireEvent:@"connection_error"
         withData:@"Mono audio is enabled. Please disable it in your iOS settings."];
 }
 
@@ -332,7 +332,7 @@ UmReader readerType;
     [self fireEvent:@"swipe_processing"];
 }
 
-/** 
+/**
 * Receive notification from the SDK when it cannot read a swipe (i.e., a
 * crooked swipe) rather than behave as if no swipe was made.
 */
@@ -340,15 +340,15 @@ UmReader readerType;
     [self fireEvent:@"swipe_error"];
 }
 
-/** 
+/**
 * Receive notification from the SDK when a successful swipe was read. Parses
 * the raw card data and sends resulting JSON with event.
 */
-- (void)umSwipeReceived:(NSNotification *)notification {    
+- (void)umSwipeReceived:(NSNotification *)notification {
     NSData* data = [notification object];
 
-    NSString* cardData = [[NSString alloc] 
-        initWithData:data 
+    NSString* cardData = [[NSString alloc]
+        initWithData:data
         encoding:NSASCIIStringEncoding];
 
     NSString* parsedCardData = [self parseCardData:cardData];
@@ -364,7 +364,7 @@ UmReader readerType;
 
 /**
 * Adds or removes observers for SDK notifications.
-* 
+*
 * @param {BOOL} listen
 *        Whether to register
 */
@@ -378,12 +378,12 @@ UmReader readerType;
         [NSValue valueWithPointer:@selector(umConnectionTimeout:)], uniMagTimeoutNotification,
         [NSValue valueWithPointer:@selector(umConnection_InsufficientPower:)], uniMagInsufficientPowerNotification,
         [NSValue valueWithPointer:@selector(umConnectionMonoAudio:)], uniMagMonoAudioErrorNotification,
-                   
+
         [NSValue valueWithPointer:@selector(umSwipeProcessing:)], uniMagDataProcessingNotification,
         [NSValue valueWithPointer:@selector(umSwipeReceived:)], uniMagDidReceiveDataNotification,
         [NSValue valueWithPointer:@selector(umSwipeTimeout:)], uniMagTimeoutSwipeNotification,
         [NSValue valueWithPointer:@selector(umSwipeError:)], uniMagInvalidSwipeNotification,
-                   
+
         nil];
 
     NSEnumerator* notifEnum = [sdkNotifs keyEnumerator];
@@ -421,15 +421,15 @@ UmReader readerType;
         options:0
         error:&error];
 
-    NSArray* matches = [cardParser 
-        matchesInString:data 
-        options:0 
+    NSArray* matches = [cardParser
+        matchesInString:data
+        options:0
         range:NSMakeRange(0, [data length])];
 
     if ([matches count]) {
         num = [data substringWithRange:[[matches objectAtIndex:0] rangeAtIndex:1]];
 
-        name = [[data substringWithRange:[[matches objectAtIndex:0] rangeAtIndex:2]] 
+        name = [[data substringWithRange:[[matches objectAtIndex:0] rangeAtIndex:2]]
             componentsSeparatedByString:@"/"];
 
         exp = [data substringWithRange:[[matches objectAtIndex:0] rangeAtIndex:3]];
@@ -444,19 +444,19 @@ UmReader readerType;
 
                 [[name objectAtIndex:1] stringByTrimmingCharactersInSet:
                     [NSCharacterSet whitespaceCharacterSet]], @"first_name",
-                
+
                 [[name objectAtIndex:0] stringByTrimmingCharactersInSet:
                    [NSCharacterSet whitespaceCharacterSet]], @"last_name",
 
                 [[data componentsSeparatedByCharactersInSet:
                         [NSCharacterSet whitespaceAndNewlineCharacterSet]]
                     componentsJoinedByString:@""], @"trimmedUnimagData",
-                
+
                 nil];
 
             return [[NSString alloc] initWithData:
-                        [NSJSONSerialization dataWithJSONObject:cardData 
-                            options:0 
+                        [NSJSONSerialization dataWithJSONObject:cardData
+                            options:0
                             error:&error]
                 encoding:NSUTF8StringEncoding];
         }
@@ -464,9 +464,9 @@ UmReader readerType;
     return nil;
 }
 
-/** 
+/**
 * Retrieve error message corresponding to a particular UmRet value.
-* 
+*
 * @param  {UmRet}      ret
 *         Status of an SDK task
 * @return {NSString*}
@@ -493,7 +493,7 @@ UmReader readerType;
 
 /**
 * Pass event to method overload.
-* 
+*
 * @param {NSString*} event
 *        The event name
 */
@@ -503,7 +503,7 @@ UmReader readerType;
 
 /**
 * Format and send event to JavaScript side.
-* 
+*
 * @param {NSString*} event
 *        The event name
 * @param {NSString*} data
@@ -511,11 +511,11 @@ UmReader readerType;
 */
 - (void) fireEvent:(NSString*)event withData:(NSString*) data {
     NSString* js;
-    NSString* dataArg = data ? 
+    NSString* dataArg = data ?
     [NSString stringWithFormat: @"','%@", data] : @"";
 
-    js = [NSString stringWithFormat: 
-        @"cordova.plugins.unimag.swiper.fireEvent('%@%@');", event, dataArg];
+    js = [NSString stringWithFormat:
+        @"UniMagSwiper.fireEvent('%@%@');", event, dataArg];
 
     [self.commandDelegate evalJs:js];
 }
